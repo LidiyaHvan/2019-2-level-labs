@@ -94,9 +94,10 @@ def get_top_n(filtered_dict: dict, top_n: int) -> tuple:
     """
     Takes first N popular words
     """
-    if diltered_dict == {} or top_n <= 0:
+    if filtered_dict == {} or top_n <= 0:
         return ()
     elif top_n > len(filtered_dict):
-        top_n = len(frequencies)
+        top_n = len(filtered_dict)
     top_list = sorted(filtered_dict.items(), key=lambda n: n[1], reverse=True)
-    return(tuple(top[:top_n]))
+    done = tuple(top_list[:top_n])
+    return done
