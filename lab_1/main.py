@@ -29,7 +29,6 @@ In that blue - in that blue sky up above
 In that blue - in that blue sky up above
 In that blue - in that blue sky up above
 '''
-
 def calculate_frequences(text: str) -> dict:
     """
     Calculates number of times each word appears in the text
