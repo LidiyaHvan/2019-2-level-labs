@@ -84,7 +84,6 @@ def filter_stop_words(frequencies: dict, stop_words: tuple) -> dict:
         for key, value in frequencies.items():
             if key not in stop_words or isinstance(key, str):
                 filtered_dict[key] = value
-    print(filtered_dict)
     return filtered_dict
 
 top_n = 4
