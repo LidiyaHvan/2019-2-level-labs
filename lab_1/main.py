@@ -1,120 +1,113 @@
 """
-Labour work #1
-Count frequencies dictionary by the given arbitrary text
+Labour work #2. Levenshtein distance.
 """
-text = '''
-You said if you could fly
-You would fly far - far into the sky
-So all you'd ever know
-Is that blue - that blue sky up above?
-You've yet to learn what the pain from true sadness is like
-You've only had but a taste
-But you're a moth to the flame
-When all my feelings reach you
-They'll no longer be mute
-For on that day
-They'll live in spoken words
-From in a dream
-When you awake into the world
-You no longer know
-If you could only spread your wings and fly away
-You said if you could fly
-You would fly far - far into the sky
-And you would set your aim
-On the clouds all around that endless sky
-The moment you break free
-You'll finally find - find all you seek
-And it's all waiting there
-In that blue - in that blue sky up above
-In that blue - in that blue sky up above
-In that blue - in that blue sky up above
-'''
-def calculate_frequences(text: str) -> dict:
-    """
-    Calculates number of times each word appears in the text
-    """
-    frequencies = {}
-    new_text = ''
-    if text is None:
-        return frequencies
-    if not isinstance(text, str):
-        text = str(text)
-    for symbol in text:
-        if symbol.isalpha() or symbol == ' ':
-            new_text += symbol
-    new_text = new_text.lower()
-    words = new_text.split()
-    for key in words:
-        key = key.lower()
-        if key in frequencies:
-            value = frequencies[key]
-            frequencies[key] = value + 1
-        else:
-            frequencies[key] = 1
-    return frequencies
 
 
-def filter_stop_words(freq_dict: dict, stop_words: tuple) -> dict:
-    """
-    Removes all stop words from the given frequencies dictionary
-    """
-    if frequencies is None:
-        frequencies = {}
-        return frequencies
-    for word in list(frequencies):
-        if not isinstance(word, str):
-            del frequencies[word]
-    if not isinstance(stop_words, tuple):
-        return frequencies
-    for word in stop_words:
-        if not isinstance(word, str):
-            continue
-        if frequencies.get(word) is not None:
-            del frequencies[word]
-    return frequencies
+def generate_edit_matrix(num_rows: int, num_cols: int) -> list:
+    edit_matrix = []
+    if isinstance(num_cols, int) and isinstance(num_rows, int):
+        for elm in range(num_rows):
+            edit_matrix.append([0] * num_cols)
+    return edit_matrix
 
 
-def get_top_n(filtered_dict: dict, top_n: int) -> tuple:
-    """
-    Takes first N popular words
-    :param
-    """
-    if not isinstance(top_n, int):
-        frequencies = ()
-        return frequencies
-    if top_n < 0:
-        top_n = 0
-    elif top_n > len(frequencies):
-        top_n = len(frequencies)
-    top_words = sorted(frequencies, key=lambda x: int(frequencies[x]), reverse=True)
-    best = tuple(top_words[:top_n])
-    return best
+def initialize_edit_matrix(edit_matrix: tuple, add_weight: int, remove_weight: int) -> list:
+    i = 0
+    j = 0
+    edit_matrix = list(edit_matrix)
+    if isinstance(add_weight, int) and isinstance(remove_weight, int) and edit_matrix and edit_matrix[0]:
+        for cols in edit_matrix:
+            edit_matrix[0][0] = 0
+            edit_matrix[i][0] = edit_matrix[i - 1][0] + remove_weight
+            i += 1
+        for rows in edit_matrix[0]:
+            edit_matrix[0][0] = 0
+            edit_matrix[0][j] = edit_matrix[0][j - 1] + add_weight
+            j += 1
+        return edit_matrix
+    else:
+        return edit_matrix
+    pass
 
 
-def read_from_file(path_to_file: str, lines_limit: int) -> str:
-    """
-    Read text from file
-    """
-    file = open(path_to_file)
-    counter = 0
-    text = ''
-    if file is None:
-        return text
-    for line in file:
-        text += line
-        counter += 1
-        if counter == lines_limit:
-            break
-    file.close()
-    return text
+def minimum_value(numbers: tuple) -> int:
+    if isinstance(numbers, tuple):
+        return min(numbers)
+    else:
+        return 0
+    pass
 
 
-def write_to_file(path_to_file: str, content: tuple):
-    """
-    Creates new file
-    """
+def fill_edit_matrix(edit_matrix: tuple,
+                     add_weight: int,
+                     remove_weight: int,
+                     substitute_weight: int,
+                     original_word: str,
+                     target_word: str) -> list:
+    if isinstance(add_weight, int) and isinstance(remove_weight, int) and isinstance(substitute_weight, int) \
+            and original_word and target_word and isinstance(original_word, str) and isinstance(target_word, str):
+        for i in range(1, len(edit_matrix)):
+            for j in range(1, len(edit_matrix[i])):
+                rem_val = edit_matrix[i - 1][j] + remove_weight
+                add_val = edit_matrix[i][j - 1] + add_weight
+                if original_word[i - 1] == target_word[j - 1]:
+                    sub_val = edit_matrix[i-1][j-1]
+                else:
+                    sub_val = edit_matrix[i - 1][j - 1] + substitute_weight
+                edit_matrix[i][j] = minimum_value((rem_val, add_val, sub_val))
+        return list(edit_matrix)
+    else:
+        return list(edit_matrix)
+    pass
+
+
+def find_distance(original_word: str,
+                  target_word: str,
+                  add_weight: int,
+                  remove_weight: int,
+                  substitute_weight: int) -> int:
+    if (isinstance(original_word, str) and isinstance(target_word, str) and isinstance(add_weight, int)
+            and isinstance(remove_weight, int) and isinstance(substitute_weight, int)):
+        num_rows, num_cols = len(original_word) + 1, len(target_word) + 1
+        matrix = tuple(generate_edit_matrix(num_rows, num_cols))
+        new_matrix = tuple(initialize_edit_matrix(matrix, add_weight, remove_weight))
+        final_matrix = fill_edit_matrix(new_matrix,
+                                        add_weight,
+                                        remove_weight,
+                                        substitute_weight,
+                                        original_word,
+                                        target_word)
+        return final_matrix[-1][-1]
+    else:
+        return -1
+
+
+print(find_distance(original_word = 'length', target_word = 'kitchen',
+                     add_weight = 1,
+                     remove_weight = 1,
+                     substitute_weight = 2))
+
+def save_to_csv(edit_matrix: tuple, path_to_file: str) -> None:
+    if not isinstance(edit_matrix, tuple) or not isinstance(path_to_file, str):
+        return None
     file = open(path_to_file, 'w')
-    for i in content:
-        file.write(i)
-        file.write('\n')
+    a = ''
+    for line in edit_matrix:
+        for i in line:
+            a += str(i) + ','
+        file.write(a + '\n')
     file.close()
+    pass
+
+def load_from_csv(path_to_file: str) -> list:
+    file = open(path_to_file, 'r')
+    matrix = []
+    for line in file:
+        row = list(line)
+        row_fin = []
+        for i in row:
+            row_fin.append(i)
+        matrix.append(row_fin)
+    file.close()
+    return matrix
+    pass
